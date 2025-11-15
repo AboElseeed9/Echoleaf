@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Loader } from './Loader';
 import type { ResearchData } from '../types';
@@ -57,11 +58,11 @@ export const ResearchMode: React.FC<ResearchModeProps> = ({ data, isLoading, err
       {data.sources && data.sources.length > 0 && (
           <section>
             <h3 className="text-2xl font-bold text-text-primary mb-6">Sources</h3>
-            <div className="glass-card p-6 rounded-2xl">
+            <div className="card p-6 rounded-2xl">
                 <ul className="space-y-4">
                     {data.sources.map((source, i) => (
                         <li key={i}>
-                            <a href={source.uri} target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary-focus transition-colors group">
+                            <a href={source.uri} target="_blank" rel="noopener noreferrer" className="text-gradient hover:opacity-80 transition-opacity group">
                                 <span className="font-semibold group-hover:underline">{source.title || 'Untitled Source'}</span>
                                 <span className="block text-sm text-text-secondary truncate">{source.uri}</span>
                             </a>

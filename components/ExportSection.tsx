@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 export const ExportSection: React.FC = () => {
@@ -9,17 +10,17 @@ export const ExportSection: React.FC = () => {
     return (
         <section>
             <h3 className="text-2xl font-bold text-text-primary mb-6">Export</h3>
-            <div className="flex flex-wrap gap-4 p-6 glass-card rounded-2xl">
+            <div className="flex flex-wrap gap-4">
                 <button
                     onClick={() => handleExport('PDF')}
-                    className="flex items-center gap-2 px-5 py-3 glass-card rounded-xl text-text-primary hover:border-primary font-semibold transition-all-theme"
+                    className="btn-secondary flex items-center gap-2 px-5 py-3 rounded-xl font-semibold transition-all-theme"
                 >
                     <FileIcon />
                     Export as PDF
                 </button>
                  <button
                     onClick={() => handleExport('BibTeX')}
-                    className="flex items-center gap-2 px-5 py-3 glass-card rounded-xl text-text-primary hover:border-primary font-semibold transition-all-theme"
+                    className="btn-secondary flex items-center gap-2 px-5 py-3 rounded-xl font-semibold transition-all-theme"
                 >
                     <QuoteIcon />
                     Export Citations (BibTeX)

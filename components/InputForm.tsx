@@ -1,6 +1,8 @@
+
+
 import React, { useState, useRef } from 'react';
 import type { FormData } from '../types';
-import { TONES, OUTPUT_FORMATS, CATEGORIES, AUDIENCES, LENGTHS, STYLE_REWRITES } from '../constants';
+import { TONES, OUTPUT_FORMATS, CATEGORIES, AUDIENCES, LENGTHS, STYLE_REWRITES, LANGUAGES, TASK_TEMPLATES } from '../constants';
 import { Dropdown } from './Dropdown';
 
 interface InputFormProps {
@@ -21,6 +23,8 @@ export const InputForm: React.FC<InputFormProps> = ({ onSubmit, isLoading }) => 
   const [audience, setAudience] = useState(AUDIENCES[0]);
   const [length, setLength] = useState(LENGTHS[2]);
   const [styleRewrite, setStyleRewrite] = useState<string[]>([]);
+  const [language, setLanguage] = useState(LANGUAGES[0]);
+  const [taskTemplate, setTaskTemplate] = useState(TASK_TEMPLATES[0]);
 
   const handleStyleChange = (style: string) => {
     setStyleRewrite(prev => 
@@ -94,7 +98,19 @@ export const InputForm: React.FC<InputFormProps> = ({ onSubmit, isLoading }) => 
         alert("Please paste study text, upload a PDF, or provide a URL to synthesize.");
         return;
     }
-    onSubmit({ studyText, studyFile, studyUrls, tone, outputFormat, category, audience, length, styleRewrite });
+    onSubmit({ 
+        studyText, 
+        studyFile, 
+        studyUrls, 
+        tone, 
+        outputFormat, 
+        category, 
+        audience, 
+        length, 
+        styleRewrite,
+        language,
+        taskTemplate
+    });
   };
 
   return (
@@ -144,13 +160,13 @@ export const InputForm: React.FC<InputFormProps> = ({ onSubmit, isLoading }) => 
             {studyFile && (
                 <div className="flex items-center justify-between bg-[var(--surface-subtle)] p-3 rounded-2xl text-sm transition-all-theme">
                     <span className="text-text-secondary truncate pr-2">{studyFile.name}</span>
-                    <button type="button" onClick={handleRemoveFile} className="text-text-muted hover:text-red-500 p-1 rounded-full transition-colors"> <TrashIcon /> </button>
+                    <button type="button" onClick={handleRemoveFile} className="text-text-muted hover:text-danger p-1 rounded-full transition-colors"> <TrashIcon /> </button>
                 </div>
             )}
             {studyUrls.map(url => (
                 <li key={url} className="flex items-center justify-between list-none bg-[var(--surface-subtle)] p-3 rounded-2xl text-sm transition-all-theme">
                     <span className="text-text-secondary truncate pr-2">{url}</span>
-                    <button type="button" onClick={() => handleRemoveUrl(url)} className="text-text-muted hover:text-red-500 p-1 rounded-full transition-colors"> <TrashIcon /> </button>
+                    <button type="button" onClick={() => handleRemoveUrl(url)} className="text-text-muted hover:text-danger p-1 rounded-full transition-colors"> <TrashIcon /> </button>
                 </li>
             ))}
         </div>
@@ -161,9 +177,10 @@ export const InputForm: React.FC<InputFormProps> = ({ onSubmit, isLoading }) => 
             2. Define Output Style
         </label>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Dropdown label="Task Template" selected={taskTemplate} onSelect={setTaskTemplate} options={TASK_TEMPLATES} />
+            <Dropdown label="Output Language" selected={language} onSelect={setLanguage} options={LANGUAGES} />
             <Dropdown label="Target Tone" selected={tone} onSelect={setTone} options={TONES} />
             <Dropdown label="Output Format" selected={outputFormat} onSelect={setOutputFormat} options={OUTPUT_FORMATS} />
-            <Dropdown label="Category" selected={category} onSelect={setCategory} options={CATEGORIES} />
             <Dropdown label="Audience" selected={audience} onSelect={setAudience} options={AUDIENCES} />
             <Dropdown label="Length" selected={length} onSelect={setLength} options={LENGTHS} />
         </div>

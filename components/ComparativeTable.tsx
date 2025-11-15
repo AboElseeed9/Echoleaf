@@ -1,3 +1,4 @@
+
 import React from 'react';
 import type { ResearchData } from '../types';
 
@@ -9,7 +10,7 @@ export const ComparativeTable: React.FC<Props> = ({ tableData }) => {
     return (
         <section>
             <h3 className="text-2xl font-bold text-text-primary mb-6">Comparative Analysis</h3>
-            <div className="overflow-x-auto glass-card rounded-2xl p-1">
+            <div className="overflow-x-auto card rounded-2xl p-1">
                 <table className="w-full text-base text-left text-text-secondary">
                     <thead className="text-sm text-text-primary uppercase">
                         <tr>

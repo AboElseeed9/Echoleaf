@@ -1,8 +1,13 @@
+
+
 import React from 'react';
 import type { GeneratedContent } from '../types';
+import { KeyEvidencePanel } from './KeyEvidencePanel';
+
 
 interface OutputDisplayProps {
   content: GeneratedContent;
+  onSave: () => void;
 }
 
 const MarkdownRenderer: React.FC<{ text: string }> = ({ text }) => {
@@ -15,11 +20,19 @@ const MarkdownRenderer: React.FC<{ text: string }> = ({ text }) => {
     return <p className="leading-relaxed" dangerouslySetInnerHTML={{ __html: formattedText }} />;
 };
 
-export const OutputDisplay: React.FC<OutputDisplayProps> = ({ content }) => {
+export const OutputDisplay: React.FC<OutputDisplayProps> = ({ content, onSave }) => {
   return (
     <article className="prose prose-lg max-w-none prose-p:text-text-secondary prose-strong:text-text-primary prose-headings:text-text-primary">
-      <h1 className="text-4xl md:text-5xl font-bold !text-text-primary !mb-2">{content.title}</h1>
-      <p className="text-xl md:text-2xl text-text-secondary mt-0">{content.subtitle}</p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-4xl md:text-5xl font-bold !text-text-primary !mb-2">{content.title}</h1>
+          <p className="text-xl md:text-2xl text-text-secondary mt-0">{content.subtitle}</p>
+        </div>
+        <button onClick={onSave} className="btn-secondary flex-shrink-0 ml-4 px-4 py-2 text-sm font-semibold rounded-full inline-flex items-center">
+            <SaveIcon />
+            <span className="ml-2">Save to Library</span>
+        </button>
+      </div>
       
       <p className="mt-6 text-xl text-text-secondary">{content.summary}</p>
 
@@ -34,6 +47,8 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({ content }) => {
             <p>{content.clarityEngine}</p>
         </InfoCard>
       </div>
+
+      {content.keyEvidence && <KeyEvidencePanel evidence={content.keyEvidence} />}
       
       <div className="mt-16">
         <h2 className="text-3xl font-bold text-text-primary border-b border-border pb-4">High-Impact Insights</h2>
@@ -61,6 +76,24 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({ content }) => {
             <MarkdownRenderer text={content.mainContent} />
         </div>
       </div>
+
+      {content.limitationsAndBias && content.limitationsAndBias.length > 0 && (
+        <div className="mt-16">
+          <h2 className="text-3xl font-bold text-text-primary border-b border-border pb-4">Limitations & Bias Checker</h2>
+          <div className="mt-6 space-y-4">
+            {content.limitationsAndBias.map((item, index) => (
+              <div key={index} className="flex items-start p-5 card rounded-2xl bg-primary/10 border-primary/20">
+                <div className="flex-shrink-0 h-7 w-7 mt-1 text-primary">
+                  <ContradictionIcon />
+                </div>
+                <div className="ml-4">
+                  <p className="text-text-primary">{item}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </article>
   );
 };
@@ -94,6 +127,7 @@ const GradientDefs = () => (
     </svg>
 );
 
+const SaveIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.5 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" /></svg>;
 const SparkleIcon = () => <><GradientDefs /><svg xmlns="http://www.w3.org/2000/svg" fill="url(#iconGradient)" viewBox="0 0 24 24" strokeWidth={1.5} stroke="url(#iconGradient)" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.898 20.624l.211.842.211-.842a3.375 3.375 0 00-2.455-2.456l-.842-.211.842-.211a3.375 3.375 0 002.455-2.456l.211-.842.211.842a3.375 3.375 0 002.455 2.456l.842.211-.842.211a3.375 3.375 0 00-2.455 2.456z" /></svg></>;
 const UserIcon = () => <><GradientDefs /><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="url(#iconGradient)" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg></>;
 const ContradictionIcon = () => <><GradientDefs /><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="url(#iconGradient)" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg></>;

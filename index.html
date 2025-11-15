@@ -18,7 +18,9 @@
               'text-secondary': 'var(--text-secondary)',
               'text-muted': 'var(--text-muted)',
               'border': 'var(--card-border)',
-              'danger': '#E74C3C', // Kept danger color
+              'danger': '#E74C3C',
+              'primary': 'var(--color-accent-primary)',
+              'accent-complementary': 'var(--color-accent-complementary)',
             },
             keyframes: {
                 'fade-in-up': {
@@ -71,6 +73,8 @@
         --btn-secondary-bg: rgba(255, 255, 255, 0.7);
         --btn-secondary-border: rgba(248, 179, 145, 0.7);
         --btn-secondary-text: #FF8A75;
+        --color-accent-primary: #FF8A75;
+        --color-accent-complementary: #7C5EA8;
       }
       
       /* 3. DARK MODE THEME */
@@ -90,6 +94,8 @@
         --btn-secondary-bg: rgba(10, 8, 25, 0.7);
         --btn-secondary-border: rgba(248, 179, 145, 0.7);
         --btn-secondary-text: #FFB774;
+        --color-accent-primary: #FFB774;
+        --color-accent-complementary: #A58DCC;
       }
 
       /* 4. GLOBAL & UTILITY STYLES */
@@ -139,6 +145,23 @@
       .btn-secondary:hover {
         transform: translateY(-2px);
         border-color: var(--btn-secondary-text);
+      }
+
+      .btn-icon {
+        background: transparent;
+        border: none;
+        padding: 0.5rem;
+        border-radius: 999px;
+        transition: all 0.2s ease-in-out;
+      }
+      .btn-icon:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+      [data-theme='dark'] .btn-icon:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+      [data-theme='light'] .btn-icon:hover {
+        background-color: rgba(0, 0, 0, 0.05);
       }
 
       .form-input {

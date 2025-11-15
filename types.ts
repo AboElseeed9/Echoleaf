@@ -1,39 +1,4 @@
-export interface AcademicWebsite {
-  name: string;
-  domain: string;
-}
 
-export interface SearchFilters {
-  pdfOnly: boolean;
-  peerReviewed: boolean;
-  systematicReviews: boolean;
-  metaAnalyses: boolean;
-  clinicalTrials: boolean;
-  yearStart: string;
-  yearEnd: string;
-}
-
-export interface SearchResult {
-  title: string;
-  source: string;
-  year: string;
-  link: string;
-  summary: string;
-}
-
-export interface SearchResponseData {
-  query_used: string;
-  website_selected: string;
-  filters_used: string[];
-  results: SearchResult[];
-}
-
-export interface ApiResponse {
-  searchResults: SearchResponseData;
-  explanation?: string;
-}
-
-// Fix: Add missing type definitions for various components.
 export interface FormData {
   studyText: string;
   studyFile?: {
@@ -48,6 +13,8 @@ export interface FormData {
   audience: string;
   length: string;
   styleRewrite: string[];
+  language: string;
+  taskTemplate: string;
 }
 
 export interface GeneratedContent {
@@ -59,7 +26,24 @@ export interface GeneratedContent {
   clarityEngine: string;
   insights: string[];
   mainContent: string;
+  keyEvidence: {
+    sampleSize: string;
+    studyType: string;
+    mainResults: string;
+    confidenceIntervals: string;
+    pValues: string;
+  };
+  limitationsAndBias: string[];
 }
+
+
+export interface SavedStudy {
+  id: string;
+  savedAt: string;
+  originalInputs: FormData;
+  generatedContent: GeneratedContent;
+}
+
 
 export interface ChatMessage {
   role: 'user' | 'model';
@@ -95,18 +79,4 @@ export interface ResearchData {
     title: string;
   }[];
   questionGenerator: string[];
-}
-
-export interface AcademicResult {
-  title: string;
-  link: string;
-  authors: string | null;
-  year: string | null;
-  journal: string | null;
-  citations: number | null;
-  summary: string | null;
-  key_findings: string | null;
-  evidence_level: string | null;
-  source_website: string | null;
-  pdf: string | null;
 }

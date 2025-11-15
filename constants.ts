@@ -1,15 +1,24 @@
-export const ACADEMIC_WEBSITES = [
-    { name: 'Google Scholar', domain: 'scholar.google.com' },
-    { name: 'PubMed', domain: 'pubmed.ncbi.nlm.nih.gov' },
-    { name: 'NIH', domain: 'nih.gov' },
-    { name: 'ResearchGate', domain: 'researchgate.net' },
-    { name: 'ScienceDirect', domain: 'sciencedirect.com' },
-    { name: 'Springer', domain: 'link.springer.com' },
-    { name: 'Nature', domain: 'nature.com' },
-    { name: 'IEEE Xplore', domain: 'ieeexplore.ieee.org' },
-    { name: 'ACM Digital Library', domain: 'dl.acm.org' },
-    { name: 'The Lancet', domain: 'thelancet.com' },
-    { name: 'BMJ', domain: 'bmj.com' },
+
+export const LANGUAGES = [
+    'English',
+    'Spanish',
+    'French',
+    'German',
+    'Chinese (Simplified)',
+    'Japanese',
+    'Arabic',
+    'Portuguese',
+    'Russian',
+    'Hindi'
+] as const;
+
+export const TASK_TEMPLATES = [
+    'Standard Summary',
+    'Write a layperson summary for a patient leaflet',
+    'Create exam-style key points',
+    'Draft discussion points for journal club',
+    'Extract data for a literature review table',
+    'Generate a press release draft'
 ] as const;
 
 export const TONES = [

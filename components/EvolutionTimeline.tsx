@@ -1,3 +1,4 @@
+
 import React from 'react';
 import type { ResearchData } from '../types';
 
@@ -15,10 +16,10 @@ export const EvolutionTimeline: React.FC<Props> = ({ timelineData }) => {
                 {sortedData.map((item, index) => (
                     <div key={index} className="mb-12 ml-8 group">
                         <span className="absolute flex items-center justify-center w-8 h-8 bg-bkgd rounded-full -left-4 ring-8 ring-bkgd border-2 border-primary">
-                             <span className="w-3 h-3 bg-primary rounded-full"></span>
+                             <span className="w-3 h-3 rounded-full" style={{background: 'var(--gradient-primary)'}}></span>
                         </span>
-                        <div className="p-5 glass-card rounded-2xl relative transition-all-theme group-hover:shadow-lg group-hover:-translate-y-1">
-                            <time className="text-sm font-semibold text-primary">{item.year}</time>
+                        <div className="p-5 card rounded-2xl relative transition-all-theme group-hover:shadow-lg group-hover:-translate-y-1">
+                            <time className="text-sm font-semibold text-gradient">{item.year}</time>
                             <p className="mt-1 text-sm text-text-secondary">Citations: {item.citationCount}</p>
                             <p className="mt-2 text-base text-text-primary">{item.summary}</p>
                         </div>

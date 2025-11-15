@@ -1,7 +1,8 @@
 
+
 import React from 'react';
 
-type Tab = 'Synthesizer' | 'Chatbot' | 'Research Mode';
+type Tab = 'Synthesizer' | 'Chatbot' | 'Research Mode' | 'Library';
 
 interface HeaderProps {
     theme: 'light' | 'dark';
@@ -12,7 +13,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ theme, toggleTheme, activeTab, setActiveTab, variant = 'app' }) => {
-  const tabs: Tab[] = ['Synthesizer', 'Chatbot', 'Research Mode'];
+  const tabs: Tab[] = ['Synthesizer', 'Chatbot', 'Research Mode', 'Library'];
 
   return (
     <header className={variant === 'home' ? 'container mx-auto px-4' : ''}>
@@ -42,7 +43,7 @@ export const Header: React.FC<HeaderProps> = ({ theme, toggleTheme, activeTab, s
             </div>
 
             <nav aria-label="Primary navigation" className="mt-8 mb-4">
-              <div role="tablist" className="flex justify-center items-center space-x-6 sm:space-x-10">
+              <div role="tablist" className="flex justify-center items-center space-x-2 sm:space-x-10 flex-wrap">
                 {tabs.map((tab) => (
                   <button
                     key={tab}
@@ -70,19 +71,54 @@ export const Header: React.FC<HeaderProps> = ({ theme, toggleTheme, activeTab, s
 };
 
 const LogoIcon = () => (
-    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width="40" height="40" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
-            <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style={{stopColor: '#FFB774'}} />
-                <stop offset="45%" style={{stopColor: '#FF8A75'}} />
-                <stop offset="100%" style={{stopColor: '#F06DD9'}} />
+            <linearGradient id="brandGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#FFB774" />
+                <stop offset="45%" stopColor="#FF8A75" />
+                <stop offset="100%" stopColor="#F06DD9" />
             </linearGradient>
+            <style>
+                {`
+                    .circuit-branch {
+                        stroke: #1A1026;
+                        fill: #1A1026;
+                    }
+                `}
+            </style>
         </defs>
-        <path d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 12 2 12 2Z" fill="url(#logoGradient)" fillOpacity="0.1"/>
-        <path d="M12 4C10.129 4 8.42306 4.79317 7.23401 6.02341C7.81749 6.22053 8.35808 6.54191 8.82283 6.97659C9.71239 7.81031 10.2222 8.96916 10.2222 10.2222C10.2222 11.4753 9.71239 12.6341 8.82283 13.4678C8.35808 13.9025 7.81749 14.2239 7.23401 14.421C8.42306 15.6512 10.129 16.4444 12 16.4444C14.4533 16.4444 16.4444 14.4533 16.4444 12C16.4444 9.54671 14.4533 7.55556 12 7.55556C11.3651 7.55556 10.762 7.66989 10.2222 7.86889V10.2222H12.5757C12.3768 9.68239 12.0654 9.1418 11.6307 8.67705C11.196 8.2123 10.6554 7.86889 10.2222 7.86889" fill="url(#logoGradient)"/>
-        <path d="M12 20C7.58172 20 4 16.4183 4 12C4 7.58172 7.58172 4 12 4V2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22V20Z" fill="url(#logoGradient)"/>
+        <path d="M60 5C30 25 15 55 15 70C15 90 33 110 60 105C87 110 105 90 105 70C105 55 90 25 60 5Z" fill="url(#brandGradient)"/>
+        
+        {/* The circuit branches inside the leaf */}
+        <g className="circuit-branch" strokeWidth="3.5" strokeLinecap="round">
+            <path d="M60 95V60" />
+            <path d="M60 78L40 63" />
+            <path d="M60 78L80 63" />
+            <path d="M60 60L45 48" />
+            <path d="M60 60L75 48" />
+        </g>
+        <g className="circuit-branch">
+            <circle cx="60" cy="98" r="4.5" />
+            <circle cx="40" cy="63" r="4.5" />
+            <circle cx="80" cy="63" r="4.5" />
+            <circle cx="45" cy="48" r="4.5" />
+            <circle cx="75" cy="48" r="4.5" />
+        </g>
+        
+        {/* The golden data streams */}
+        <g stroke="url(#brandGradient)" strokeWidth="2.5" strokeLinecap="round" opacity="0.9">
+            <path d="M90 65 C 98 63, 105 59, 110 53" strokeDasharray="5 5" />
+            <path d="M92 78 C 102 76, 110 72, 115 65" strokeDasharray="5 5" />
+            <path d="M88 52 C 95 50, 102 46, 107 40" strokeDasharray="5 5" />
+        </g>
+         <g fill="url(#brandGradient)" opacity="0.9">
+            <circle cx="110" cy="53" r="3" />
+            <circle cx="115" cy="65" r="3" />
+            <circle cx="107" cy="40" r="3" />
+        </g>
     </svg>
 );
+
 
 const SunIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">

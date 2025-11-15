@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
 import type { FormData, GeneratedContent, ChatMessage, ResearchData } from '../types';
 
@@ -39,7 +40,7 @@ const parseJsonFromMarkdown = <T>(text: string): T | null => {
 
 export const generateContent = async (formData: FormData): Promise<GeneratedContent> => {
     const basePrompt = `
-        You are an expert science communicator. Your task is to transform a dense scientific study into a clear, engaging, and multi-faceted piece of content.
+        You are an expert science communicator and research analyst. Your task is to transform a dense scientific study into a clear, engaging, and multi-faceted piece of content, while also extracting key data points and potential limitations.
         
         **CONTENT REQUIREMENTS:**
         - Tone: ${formData.tone}
@@ -48,24 +49,38 @@ export const generateContent = async (formData: FormData): Promise<GeneratedCont
         - Target Audience: ${formData.audience}
         - Desired Length: ${formData.length}
         - Style Rewrites: ${formData.styleRewrite.join(', ') || 'None'}
+        - Output Language: Generate the output in ${formData.language}. Preserve scientific terms where appropriate.
+        - Task Template: Structure the output according to the '${formData.taskTemplate}' template.
 
         **YOUR TASK:**
         Generate a JSON object with the following structure. Do not include any text before or after the JSON block.
 
         \`\`\`json
         {
-          "title": "[A compelling, SEO-friendly title]",
-          "subtitle": "[An engaging subtitle that hooks the reader]",
-          "summary": "[A 2-3 sentence 'TL;DR' summary in plain language]",
+          "title": "[A compelling, SEO-friendly title in ${formData.language}]",
+          "subtitle": "[An engaging subtitle that hooks the reader in ${formData.language}]",
+          "summary": "[A 2-3 sentence 'TL;DR' summary in plain language in ${formData.language}]",
           "authorYear": "[Identify the primary author and year, e.g., 'Smith et al. (2023)']",
-          "contradiction": "[What is the core problem or contradiction this study addresses?]",
-          "clarityEngine": "[Explain the single most important finding as if you were talking to a 5th grader]",
+          "contradiction": "[What is the core problem or contradiction this study addresses? In ${formData.language}]",
+          "clarityEngine": "[Explain the single most important finding as if you were talking to a 5th grader. In ${formData.language}]",
           "insights": [
-            "[Insight 1: A high-impact takeaway, formatted with markdown for bolding/italics]",
-            "[Insight 2: Another significant point, formatted with markdown]",
-            "[Insight 3: A final key insight, formatted with markdown]"
+            "[Insight 1: A high-impact takeaway, formatted with markdown for bolding/italics. In ${formData.language}]",
+            "[Insight 2: Another significant point, formatted with markdown. In ${formData.language}]",
+            "[Insight 3: A final key insight, formatted with markdown. In ${formData.language}]"
           ],
-          "mainContent": "[The main body of the content, written according to the specified format, tone, and audience. Use markdown for formatting (headings, lists, bold, italics).]"
+          "mainContent": "[The main body of the content, written according to the specified format, tone, and audience. Use markdown for formatting (headings, lists, bold, italics). In ${formData.language}]",
+          "keyEvidence": {
+            "sampleSize": "[Extract the sample size, e.g., 'n=256' or 'Not specified']",
+            "studyType": "[Extract the study type, e.g., 'Randomized Controlled Trial', 'Observational Study', 'Meta-analysis']",
+            "mainResults": "[Summarize the main quantitative results, e.g., '25% reduction in symptoms']",
+            "confidenceIntervals": "[Extract the confidence interval, e.g., '95% CI [0.65, 0.85]']",
+            "pValues": "[Extract the p-value, e.g., 'p < 0.05' or 'Not significant']"
+          },
+          "limitationsAndBias": [
+            "[Identify a potential limitation or bias, e.g., 'Small sample size limits generalizability.']",
+            "[Identify another potential limitation, e.g., 'Potential for selection bias as participants were self-referred.']",
+            "[Identify another, e.g., 'Lack of a long-term follow-up period.']"
+          ]
         }
         \`\`\`
     `;
@@ -124,14 +139,28 @@ export const generateContent = async (formData: FormData): Promise<GeneratedCont
     }
 };
 
-export const sendMessage = async (history: ChatMessage[]): Promise<string> => {
-    // The Gemini API expects alternating user/model roles. We format our history.
+export const sendMessage = async (history: ChatMessage[], context: GeneratedContent | null): Promise<string> => {
     const geminiHistory = history.slice(0, -1).map(msg => ({
         role: msg.role === 'user' ? 'user' : 'model',
         parts: [{ text: msg.content }],
     }));
 
     const lastMessage = history[history.length - 1];
+    let userPrompt = lastMessage.content;
+
+    if (context) {
+        userPrompt = `
+            CONTEXT from the study titled "${context.title}":
+            - Summary: ${context.summary}
+            - Main Content: ${context.mainContent.substring(0, 2000)}...
+            - Key Evidence: ${JSON.stringify(context.keyEvidence)}
+            - Limitations: ${context.limitationsAndBias.join(', ')}
+
+            Based on the context above, please answer the following question from the user:
+            
+            USER QUESTION: "${lastMessage.content}"
+        `;
+    }
 
     try {
         const chat: Chat = ai.chats.create({
@@ -139,7 +168,7 @@ export const sendMessage = async (history: ChatMessage[]): Promise<string> => {
             history: geminiHistory,
         });
 
-        const response: GenerateContentResponse = await chat.sendMessage({ message: lastMessage.content });
+        const response: GenerateContentResponse = await chat.sendMessage({ message: userPrompt });
         return response.text;
     } catch (error) {
         console.error("Error sending chat message:", error);

@@ -1,15 +1,19 @@
 
+
 import React, { useState, useEffect, useCallback } from 'react';
-import type { FormData, GeneratedContent, ChatMessage, ResearchData } from './types';
+import type { FormData, GeneratedContent, ChatMessage, ResearchData, SavedStudy } from './types';
 import * as geminiService from './services/geminiService';
+import { useLibrary } from './hooks/useLibrary';
 import { Header } from './components/Header';
 import { InputForm } from './components/InputForm';
 import { OutputDisplay } from './components/OutputDisplay';
 import { Chatbot } from './components/Chatbot';
 import { ResearchMode } from './components/ResearchMode';
 import { HomePage } from './components/HomePage';
+import { Library } from './components/Library';
 
-type Tab = 'Synthesizer' | 'Chatbot' | 'Research Mode';
+
+type Tab = 'Synthesizer' | 'Chatbot' | 'Research Mode' | 'Library';
 
 const App: React.FC = () => {
     // Theme management
@@ -40,12 +44,12 @@ const App: React.FC = () => {
     const [activeTab, setActiveTab] = useState<Tab>('Synthesizer');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { savedStudies, saveStudy, deleteStudy } = useLibrary();
 
     // State for each tab
-    const [generatedContent, setGeneratedContent] = useState<GeneratedContent | null>(null);
+    const [currentSynthesisResult, setCurrentSynthesisResult] = useState<{ formData: FormData, content: GeneratedContent } | null>(null);
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
     const [researchData, setResearchData] = useState<ResearchData | null>(null);
-    const [synthesisTopic, setSynthesisTopic] = useState<string>('');
 
     const handleEnterApp = useCallback(() => {
         setShowApp(true);
@@ -54,11 +58,10 @@ const App: React.FC = () => {
     const handleSynthesize = async (formData: FormData) => {
         setIsLoading(true);
         setError(null);
-        setGeneratedContent(null);
+        setCurrentSynthesisResult(null);
         try {
             const content = await geminiService.generateContent(formData);
-            setGeneratedContent(content);
-            setSynthesisTopic(content.title); 
+            setCurrentSynthesisResult({ formData, content });
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An unknown error occurred.');
         } finally {
@@ -66,6 +69,18 @@ const App: React.FC = () => {
         }
     };
     
+    const handleSaveToLibrary = () => {
+        if (currentSynthesisResult) {
+            saveStudy({
+                id: Date.now().toString(),
+                savedAt: new Date().toISOString(),
+                originalInputs: currentSynthesisResult.formData,
+                generatedContent: currentSynthesisResult.content,
+            });
+            alert('Study saved to your library!');
+        }
+    };
+
     const handleSendMessage = useCallback(async (message: string) => {
         const newMessages: ChatMessage[] = [...chatMessages, { role: 'user', content: message }];
         setChatMessages(newMessages);
@@ -73,7 +88,7 @@ const App: React.FC = () => {
         setError(null);
 
         try {
-            const response = await geminiService.sendMessage(newMessages);
+            const response = await geminiService.sendMessage(newMessages, currentSynthesisResult?.content ?? null);
             setChatMessages(prev => [...prev, { role: 'model', content: response }]);
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
@@ -82,7 +97,7 @@ const App: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [chatMessages]);
+    }, [chatMessages, currentSynthesisResult]);
 
     const handleResearch = useCallback(async (topic: string) => {
         setActiveTab('Research Mode');
@@ -111,12 +126,12 @@ const App: React.FC = () => {
                     <>
                         <InputForm onSubmit={handleSynthesize} isLoading={isLoading} />
                         {error && !isLoading && <div className="mt-6 text-danger bg-danger/10 p-4 rounded-2xl">{error}</div>}
-                        {generatedContent && (
-                            <div key={synthesisTopic} className="mt-12 border-t border-border pt-12">
-                                <OutputDisplay content={generatedContent} />
+                        {currentSynthesisResult && (
+                            <div key={currentSynthesisResult.content.title} className="mt-12 border-t border-border pt-12">
+                                <OutputDisplay content={currentSynthesisResult.content} onSave={handleSaveToLibrary} />
                                 <div className="mt-16 text-center">
                                     <button
-                                        onClick={() => handleResearch(synthesisTopic)}
+                                        onClick={() => handleResearch(currentSynthesisResult.content.title)}
                                         className="btn-primary px-8 py-4 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                                         disabled={isLoading}
                                     >
@@ -132,11 +147,11 @@ const App: React.FC = () => {
                     messages={chatMessages} 
                     onSendMessage={handleSendMessage} 
                     isLoading={isLoading}
-                    initialPrompts={generatedContent ? [
-                        `Explain the key findings of "${synthesisTopic}" in simpler terms.`,
-                        `What are the limitations of the study on "${synthesisTopic}"?`,
-                        `Who would benefit most from the results of "${synthesisTopic}"?`,
-                        `What are the practical applications of "${synthesisTopic}"?`,
+                    initialPrompts={currentSynthesisResult ? [
+                        `Explain the key findings of "${currentSynthesisResult.content.title}" in simpler terms.`,
+                        `What are the limitations of the study on "${currentSynthesisResult.content.title}"?`,
+                        `Who would benefit most from the results of "${currentSynthesisResult.content.title}"?`,
+                        `What are the practical applications of "${currentSynthesisResult.content.title}"?`,
                     ] : []}
                 />;
             case 'Research Mode':
@@ -146,6 +161,8 @@ const App: React.FC = () => {
                     error={error} 
                     onQuestionClick={handleChatbotQuestion}
                 />;
+            case 'Library':
+                return <Library studies={savedStudies} onDelete={deleteStudy} />;
             default:
                 return null;
         }
