@@ -1,4 +1,5 @@
 
+
 export const LANGUAGES = [
     'English',
     'Spanish',
@@ -18,7 +19,8 @@ export const TASK_TEMPLATES = [
     'Create exam-style key points',
     'Draft discussion points for journal club',
     'Extract data for a literature review table',
-    'Generate a press release draft'
+    'Generate a press release draft',
+    'Generate Self-Help Article Outline'
 ] as const;
 
 export const TONES = [

@@ -1,4 +1,5 @@
 
+
 export interface FormData {
   studyText: string;
   studyFile?: {
@@ -15,6 +16,7 @@ export interface FormData {
   styleRewrite: string[];
   language: string;
   taskTemplate: string;
+  thinkingMode?: boolean;
 }
 
 export interface GeneratedContent {
@@ -34,14 +36,14 @@ export interface GeneratedContent {
     pValues: string;
   };
   limitationsAndBias: string[];
+  selfHelpOutline?: string;
 }
-
 
 export interface SavedStudy {
   id: string;
-  savedAt: string;
   originalInputs: FormData;
   generatedContent: GeneratedContent;
+  savedAt: string;
 }
 
 

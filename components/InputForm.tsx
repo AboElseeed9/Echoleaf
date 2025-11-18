@@ -25,6 +25,7 @@ export const InputForm: React.FC<InputFormProps> = ({ onSubmit, isLoading }) => 
   const [styleRewrite, setStyleRewrite] = useState<string[]>([]);
   const [language, setLanguage] = useState(LANGUAGES[0]);
   const [taskTemplate, setTaskTemplate] = useState(TASK_TEMPLATES[0]);
+  const [thinkingMode, setThinkingMode] = useState(false);
 
   const handleStyleChange = (style: string) => {
     setStyleRewrite(prev => 
@@ -34,12 +35,21 @@ export const InputForm: React.FC<InputFormProps> = ({ onSubmit, isLoading }) => 
   
   const handleAddUrl = () => {
     if (currentUrl) {
+        if (studyUrls.length >= 5) {
+            alert('You can add a maximum of 5 URLs.');
+            return;
+        }
+        if (studyUrls.includes(currentUrl)) {
+            alert('This URL has already been added.');
+            return;
+        }
         try {
             new URL(currentUrl);
-            setStudyUrls([currentUrl]);
+            setStudyUrls(prev => [...prev, currentUrl]);
             setCurrentUrl('');
             setStudyText('');
             setStudyFile(null);
+            if (fileInputRef.current) fileInputRef.current.value = '';
         } catch (_) {
             alert('Please enter a valid URL.');
         }
@@ -89,6 +99,7 @@ export const InputForm: React.FC<InputFormProps> = ({ onSubmit, isLoading }) => 
       if (e.target.value) {
           setStudyFile(null);
           setStudyUrls([]);
+          if (fileInputRef.current) fileInputRef.current.value = '';
       }
   }
 
@@ -109,7 +120,8 @@ export const InputForm: React.FC<InputFormProps> = ({ onSubmit, isLoading }) => 
         length, 
         styleRewrite,
         language,
-        taskTemplate
+        taskTemplate,
+        thinkingMode
     });
   };
 
@@ -119,6 +131,7 @@ export const InputForm: React.FC<InputFormProps> = ({ onSubmit, isLoading }) => 
         <label htmlFor="studyText" className="block text-lg font-semibold text-text-primary">
           1. Provide Study Content
         </label>
+        <p className="text-sm text-text-secondary -mt-2 mb-3">Paste a full study, list of topics (one per line), or use the URL/PDF upload options below.</p>
         <div className="relative">
           <textarea
             id="studyText"
@@ -126,7 +139,7 @@ export const InputForm: React.FC<InputFormProps> = ({ onSubmit, isLoading }) => 
             onChange={handleTextChange}
             rows={8}
             className="form-input"
-            placeholder="Paste the text from the scientific study here..."
+            placeholder="Paste study text or list topics here..."
           />
            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-full flex justify-center">
              <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".pdf" className="hidden" id="pdf-upload" />
@@ -148,27 +161,33 @@ export const InputForm: React.FC<InputFormProps> = ({ onSubmit, isLoading }) => 
               type="url"
               value={currentUrl}
               onChange={(e) => setCurrentUrl(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddUrl())}
               className="form-input text-sm"
-              placeholder="Enter a URL to a study..."
+              placeholder="Enter up to 5 URLs to a study..."
             />
             <button type="button" onClick={handleAddUrl} className="btn-secondary px-5 py-3 rounded-2xl font-semibold text-sm">Add</button>
         </div>
       </div>
 
       {(studyFile || studyUrls.length > 0) && (
-        <div className="space-y-2">
+        <div className="space-y-3">
+            <p className="text-sm font-semibold text-text-secondary">Current Input:</p>
             {studyFile && (
                 <div className="flex items-center justify-between bg-[var(--surface-subtle)] p-3 rounded-2xl text-sm transition-all-theme">
                     <span className="text-text-secondary truncate pr-2">{studyFile.name}</span>
                     <button type="button" onClick={handleRemoveFile} className="text-text-muted hover:text-danger p-1 rounded-full transition-colors"> <TrashIcon /> </button>
                 </div>
             )}
-            {studyUrls.map(url => (
-                <li key={url} className="flex items-center justify-between list-none bg-[var(--surface-subtle)] p-3 rounded-2xl text-sm transition-all-theme">
-                    <span className="text-text-secondary truncate pr-2">{url}</span>
-                    <button type="button" onClick={() => handleRemoveUrl(url)} className="text-text-muted hover:text-danger p-1 rounded-full transition-colors"> <TrashIcon /> </button>
-                </li>
-            ))}
+            {studyUrls.length > 0 && (
+                <ul className="list-none m-0 p-0 space-y-2">
+                    {studyUrls.map(url => (
+                        <li key={url} className="flex items-center justify-between list-none bg-[var(--surface-subtle)] p-3 rounded-2xl text-sm transition-all-theme">
+                            <span className="text-text-secondary truncate pr-2">{url}</span>
+                            <button type="button" onClick={() => handleRemoveUrl(url)} className="text-text-muted hover:text-danger p-1 rounded-full transition-colors"> <TrashIcon /> </button>
+                        </li>
+                    ))}
+                </ul>
+            )}
         </div>
       )}
       
@@ -195,7 +214,25 @@ export const InputForm: React.FC<InputFormProps> = ({ onSubmit, isLoading }) => 
           </div>
       </div>
       
-      <div className="border-t border-border pt-8 text-center">
+      <div className="border-t border-border pt-8 flex flex-col items-center gap-6">
+        <label htmlFor="thinking-mode" className="flex items-center cursor-pointer">
+            <div className="relative">
+                <input
+                    id="thinking-mode"
+                    type="checkbox"
+                    className="sr-only"
+                    checked={thinkingMode}
+                    onChange={() => setThinkingMode(!thinkingMode)}
+                />
+                <div className={`block w-14 h-8 rounded-full transition-colors ${thinkingMode ? 'bg-primary' : 'bg-border'}`}></div>
+                <div className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform ${thinkingMode ? 'translate-x-6' : 'translate-x-0'}`}></div>
+            </div>
+            <div className="ml-4 text-left">
+                <p className="font-semibold text-text-primary">Thinking Mode</p>
+                <p className="text-sm text-text-secondary">Handles complex queries with deeper analysis. (Slower)</p>
+            </div>
+        </label>
+
         <button
           type="submit"
           disabled={isLoading}
@@ -203,7 +240,7 @@ export const InputForm: React.FC<InputFormProps> = ({ onSubmit, isLoading }) => 
         >
           {isLoading ? (
             <>
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>

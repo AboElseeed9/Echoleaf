@@ -1,19 +1,15 @@
-
-
 import React, { useState, useEffect, useCallback } from 'react';
-import type { FormData, GeneratedContent, ChatMessage, ResearchData, SavedStudy } from './types';
+import type { FormData, GeneratedContent, ChatMessage, ResearchData } from './types';
 import * as geminiService from './services/geminiService';
-import { useLibrary } from './hooks/useLibrary';
 import { Header } from './components/Header';
 import { InputForm } from './components/InputForm';
 import { OutputDisplay } from './components/OutputDisplay';
 import { Chatbot } from './components/Chatbot';
 import { ResearchMode } from './components/ResearchMode';
 import { HomePage } from './components/HomePage';
-import { Library } from './components/Library';
 
 
-type Tab = 'Synthesizer' | 'Chatbot' | 'Research Mode' | 'Library';
+type Tab = 'Synthesizer' | 'Chatbot' | 'Research Mode';
 
 const App: React.FC = () => {
     // Theme management
@@ -38,13 +34,12 @@ const App: React.FC = () => {
     const toggleTheme = () => {
         setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
     };
-
+    
     // App state
     const [showApp, setShowApp] = useState(false);
     const [activeTab, setActiveTab] = useState<Tab>('Synthesizer');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const { savedStudies, saveStudy, deleteStudy } = useLibrary();
 
     // State for each tab
     const [currentSynthesisResult, setCurrentSynthesisResult] = useState<{ formData: FormData, content: GeneratedContent } | null>(null);
@@ -53,6 +48,15 @@ const App: React.FC = () => {
 
     const handleEnterApp = useCallback(() => {
         setShowApp(true);
+    }, []);
+
+    const handleGoHome = useCallback(() => {
+        setShowApp(false);
+        setActiveTab('Synthesizer');
+        setCurrentSynthesisResult(null);
+        setChatMessages([]);
+        setResearchData(null);
+        setError(null);
     }, []);
 
     const handleSynthesize = async (formData: FormData) => {
@@ -69,18 +73,6 @@ const App: React.FC = () => {
         }
     };
     
-    const handleSaveToLibrary = () => {
-        if (currentSynthesisResult) {
-            saveStudy({
-                id: Date.now().toString(),
-                savedAt: new Date().toISOString(),
-                originalInputs: currentSynthesisResult.formData,
-                generatedContent: currentSynthesisResult.content,
-            });
-            alert('Study saved to your library!');
-        }
-    };
-
     const handleSendMessage = useCallback(async (message: string) => {
         const newMessages: ChatMessage[] = [...chatMessages, { role: 'user', content: message }];
         setChatMessages(newMessages);
@@ -123,12 +115,15 @@ const App: React.FC = () => {
         switch (activeTab) {
             case 'Synthesizer':
                 return (
-                    <>
+                    <div className="flex flex-col h-full">
                         <InputForm onSubmit={handleSynthesize} isLoading={isLoading} />
                         {error && !isLoading && <div className="mt-6 text-danger bg-danger/10 p-4 rounded-2xl">{error}</div>}
                         {currentSynthesisResult && (
-                            <div key={currentSynthesisResult.content.title} className="mt-12 border-t border-border pt-12">
-                                <OutputDisplay content={currentSynthesisResult.content} onSave={handleSaveToLibrary} />
+                            <div key={currentSynthesisResult.content.title} className="mt-12 border-t border-border pt-12 flex-1 min-h-0">
+                                <OutputDisplay 
+                                    content={currentSynthesisResult.content} 
+                                    initialTone={currentSynthesisResult.formData.tone}
+                                />
                                 <div className="mt-16 text-center">
                                     <button
                                         onClick={() => handleResearch(currentSynthesisResult.content.title)}
@@ -140,7 +135,7 @@ const App: React.FC = () => {
                                 </div>
                             </div>
                         )}
-                    </>
+                    </div>
                 );
             case 'Chatbot':
                 return <Chatbot 
@@ -161,8 +156,6 @@ const App: React.FC = () => {
                     error={error} 
                     onQuestionClick={handleChatbotQuestion}
                 />;
-            case 'Library':
-                return <Library studies={savedStudies} onDelete={deleteStudy} />;
             default:
                 return null;
         }
@@ -173,25 +166,26 @@ const App: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen text-text-primary transition-all-theme overflow-hidden">
-            <main className="container mx-auto px-4 py-8 md:py-12">
+        <div className="min-h-screen text-text-primary transition-all-theme flex flex-col">
+            <main className="container mx-auto px-4 py-8 md:py-12 flex-grow flex flex-col">
                 <Header 
                     theme={theme} 
                     toggleTheme={toggleTheme} 
                     activeTab={activeTab} 
                     setActiveTab={setActiveTab}
                     variant="app"
+                    onGoHome={handleGoHome}
                 />
                 
-                <div className="max-w-5xl mx-auto mt-8">
-                    <div className="card p-6 sm:p-10 rounded-3xl transition-all-theme min-h-[60vh]">
+                <div className="max-w-7xl mx-auto mt-8 w-full flex-grow flex flex-col">
+                    <div className="card py-8 px-4 sm:px-8 md:px-10 rounded-3xl transition-all-theme main-content-container flex-grow flex flex-col overflow-y-auto">
                         {renderContent()}
                     </div>
                 </div>
-                 <footer className="text-center py-8 mt-8">
-                    <p className="text-sm text-text-muted">Designed by EchoLeaf AI</p>
-                </footer>
             </main>
+             <footer className="text-center py-8">
+                <p className="text-sm text-text-muted">Designed by EchoLeaf AI</p>
+            </footer>
         </div>
     );
 };

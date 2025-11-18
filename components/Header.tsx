@@ -1,8 +1,6 @@
-
-
 import React from 'react';
 
-type Tab = 'Synthesizer' | 'Chatbot' | 'Research Mode' | 'Library';
+type Tab = 'Synthesizer' | 'Chatbot' | 'Research Mode';
 
 interface HeaderProps {
     theme: 'light' | 'dark';
@@ -10,10 +8,11 @@ interface HeaderProps {
     activeTab?: Tab;
     setActiveTab?: (tab: Tab) => void;
     variant?: 'app' | 'home';
+    onGoHome?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ theme, toggleTheme, activeTab, setActiveTab, variant = 'app' }) => {
-  const tabs: Tab[] = ['Synthesizer', 'Chatbot', 'Research Mode', 'Library'];
+export const Header: React.FC<HeaderProps> = ({ theme, toggleTheme, activeTab, setActiveTab, variant = 'app', onGoHome }) => {
+  const tabs: Tab[] = ['Synthesizer', 'Chatbot', 'Research Mode'];
 
   return (
     <header className={variant === 'home' ? 'container mx-auto px-4' : ''}>
@@ -24,13 +23,26 @@ export const Header: React.FC<HeaderProps> = ({ theme, toggleTheme, activeTab, s
             EchoLeaf
           </p>
         </div>
-        <button 
-          onClick={toggleTheme} 
-          aria-label="Toggle theme"
-          className="p-2 rounded-full text-text-secondary hover:bg-card focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary focus:ring-offset-bkgd transition-all-theme"
-        >
-          {theme === 'light' ? <MoonIcon /> : <SunIcon />}
-        </button>
+        <div className="flex items-center gap-2">
+            {variant === 'app' && (
+              <>
+                <button 
+                  onClick={onGoHome} 
+                  aria-label="Go to home page"
+                  className="p-2 rounded-full text-text-secondary hover:bg-card focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary focus:ring-offset-bkgd transition-all-theme"
+                >
+                    <HomeIcon />
+                </button>
+              </>
+            )}
+            <button 
+              onClick={toggleTheme} 
+              aria-label="Toggle theme"
+              className="p-2 rounded-full text-text-secondary hover:bg-card focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary focus:ring-offset-bkgd transition-all-theme"
+            >
+              {theme === 'light' ? <MoonIcon /> : <SunIcon />}
+            </button>
+        </div>
       </div>
 
       {variant === 'app' && activeTab && setActiveTab && (
@@ -129,5 +141,11 @@ const SunIcon = () => (
 const MoonIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
         <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+    </svg>
+);
+
+const HomeIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h7.5" />
     </svg>
 );

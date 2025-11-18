@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 
 interface DropdownProps {
@@ -30,7 +31,7 @@ export const Dropdown: React.FC<DropdownProps> = ({ label, options, selected, on
 
   return (
     <div>
-      <label className="block text-sm font-semibold text-text-primary mb-2">{label}</label>
+      {label && <label className="block text-sm font-semibold text-text-primary mb-2">{label}</label>}
       <div className="relative" ref={dropdownRef}>
         <button
           type="button"

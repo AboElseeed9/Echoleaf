@@ -1,5 +1,3 @@
-
-
 import React, { useState, useRef, useEffect } from 'react';
 import type { ChatMessage } from '../types';
 
@@ -34,7 +32,7 @@ export const Chatbot: React.FC<ChatbotProps> = ({ messages, onSendMessage, isLoa
   };
 
   return (
-    <div className="flex flex-col h-[65vh]">
+    <div className="flex flex-col flex-grow">
       <h2 className="text-3xl font-bold text-text-primary mb-6">EchoLeaf Chatbot</h2>
       <div className="flex-grow overflow-y-auto pr-4 -mr-4 space-y-6">
         {messages.length === 0 && initialPrompts.length > 0 && (

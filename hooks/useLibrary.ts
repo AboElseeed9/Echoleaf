@@ -41,5 +41,14 @@ export const useLibrary = () => {
     });
   }, []);
 
-  return { savedStudies, saveStudy, deleteStudy };
+  const clearLibrary = useCallback(() => {
+    setSavedStudies([]);
+    try {
+      window.localStorage.removeItem(LIBRARY_KEY);
+    } catch (error) {
+      console.error("Failed to clear library in localStorage", error);
+    }
+  }, []);
+
+  return { savedStudies, saveStudy, deleteStudy, clearLibrary };
 };
